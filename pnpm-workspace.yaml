@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  unrs-resolver: set this to true or false
+
+onlyBuiltDependencies:
+  - "@tailwindcss/oxide"
+  - sharp
+  - unrs-resolver

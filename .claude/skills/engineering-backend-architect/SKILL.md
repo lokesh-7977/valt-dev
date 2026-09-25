@@ -86,6 +86,9 @@ crews directly — only graphs.
 - Shared tool logic lives in plain functions; expose thin wrappers for LangChain (`@tool` from
   `langchain_core.tools`) and CrewAI (`@tool` from `crewai.tools`) rather than duplicating logic.
 - `CREWAI_DISABLE_TELEMETRY=true` in every environment unless the team decides otherwise.
+- Never set `memory=True` or `knowledge_sources` on crews, and never run a Chroma server. CrewAI's
+  pinned chromadb has unpatched server-side CVEs (ADR 0006). Retrieval goes through our
+  pgvector-backed tools.
 
 ### Streaming (ADR 0007)
 - Runs are `POST /api/<feature>/runs` returning `StreamingResponse(media_type="text/event-stream")`.

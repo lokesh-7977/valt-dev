@@ -19,6 +19,7 @@ dependencies = [
 # Add the provider package (e.g. langchain-openai / langchain-anthropic) once the provider is chosen.
 ai = [
 # Versions verified together on 2026-09-25 (crewai caps pydantic at 2.12.x). Upgrade as a set.
+# crewai pulls chromadb~=1.1 (unpatched server-side CVEs) — see ADR 0006 guard rules.
     "langchain>=1.4.2,<1.5",
     "langchain-core>=1.6.5,<1.7",
     "langgraph>=1.2.12,<1.3",

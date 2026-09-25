@@ -61,5 +61,11 @@ inside a LangGraph graph** (ADR 0005). LangGraph remains the sole top-level orch
   the same `Settings` so both paths use the same provider, model, and key.
 - **Heavy dependency tree.** CrewAI pins many packages and can conflict with LangChain versions.
   Pin versions, and adopt a lockfile (e.g. `uv lock`) for `apps/api`.
+- **ChromaDB advisories (2026-09-25):** CrewAI pins `chromadb~=1.1.0`, and every ChromaDB release
+  through 1.5.9 is affected by CVE-2026-45829/45830/45831/45833 (code injection and cross-tenant
+  access). All of them target Chroma's **HTTP server** and its auth/RBAC provider, so none has a fix
+  version yet. Guard rules: never run a Chroma server; never enable CrewAI `memory=True` or
+  `knowledge_sources` (they use Chroma). Vectors go in pgvector (ADR 0011) and are exposed to crews
+  as our own tools. Re-check with `pip-audit` on every CrewAI upgrade.
 - CrewAI sends anonymous telemetry by default; set `CREWAI_DISABLE_TELEMETRY=true` in
   `.env.example` unless we decide otherwise.

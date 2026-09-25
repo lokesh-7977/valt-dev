@@ -11,11 +11,12 @@ Turn **what** into **an ordered list of how**. Output feeds `execute` directly, 
 
 1. **Find the input.** Look for `docs/product/<slug>-prd.md`. No PRD and the request is vague? Say so and offer `prd` first. No PRD but the request is concrete? Proceed and note it.
 2. **Read the real code.** Trace every path you intend to touch. Record `file_path:line` for each integration point. Never name a file, function, or symbol you have not confirmed exists.
-3. **Choose an approach.** If there is a real fork, state 2 options with the trade-off in one line each and pick one. Don't survey.
-4. **Decompose.** Atomic tasks — one reviewable change each, exact files, explicit "done when."
-5. **Order** by dependency; mark parallel-safe tasks.
-6. **Write** `docs/plans/<slug>-plan.md`.
-7. **Report** path, task count, critical path, parallel tasks. Offer `/execute <slug>`.
+3. **Research.** Verify every library API and model fact the plan depends on against current official docs (link + date in Research notes). AI libraries change fast.
+4. **Choose an approach.** If there is a real fork, state 2 options with the trade-off in one line each and pick one. Don't survey.
+5. **Decompose.** Atomic tasks — one reviewable change each, exact files, explicit "done when."
+6. **Order** by dependency; mark parallel-safe tasks.
+7. **Self-critique**, then **write** `docs/plans/<slug>-plan.md`.
+8. **Report** path, task count, critical path, parallel tasks. Offer `/execute <slug>`.
 
 ## Stack facts (this repo)
 
@@ -39,6 +40,17 @@ Three to five sentences. What we build and the one structural decision that shap
 - **Chosen:** <option> — <why in one line>
 - **Rejected:** <option> — <why in one line>
 
+## Research notes
+- <what was verified> — <doc link> (<date>, version)
+
+## AI design
+(AI features only; otherwise "N/A")
+- **Shape:** <single call | LangGraph | graph + CrewAI node> — <why the simpler option isn't enough>
+- **Context/RAG:** <inputs, retrieval, chunking>
+- **Approvals & limits:** <interrupt points, recursion/token/time limits>
+- **Eval:** <cases from PRD, launch threshold, task Tn>
+- **Budget math:** <calls × tokens × price = cost/use; latency estimate> vs PRD budget
+
 ## Touch points
 | File | Line | What changes |
 |------|------|--------------|
@@ -47,6 +59,7 @@ Three to five sentences. What we build and the one structural decision that shap
 ## Tasks
 
 ### [ ] T1 — <imperative title>
+- **Owner:** <database-engineer | backend-engineer | ai-engineer | frontend-engineer | devops-engineer>
 - **Files:** `<exact paths>`
 - **Change:** <what, concretely>
 - **Done when:** <observable condition>
@@ -70,5 +83,9 @@ Parallel: T2, T5 (no shared files, no dependency)
 - Every task heading starts with `[ ]` — the `execute` skill flips it to `[x]` to track progress, so the marker is required.
 - A task naming a file that does not exist (and is not created by an earlier task) is a defect.
 - If a task needs a paragraph to explain, split it.
-- No test tasks — verification is the "Done when" line plus build/typecheck.
+- Every task has one **Owner**: `ai-engineer` for anything under `apps/api/src/valt_api/ai/` or AI
+  run endpoints, `database-engineer` for models/migrations/repositories under `valt_api/db/` and
+  `migrations/`, `backend-engineer` for other `apps/api` work, `frontend-engineer` for `apps/web`,
+  `devops-engineer` for CI, Docker, env, infra. A task spanning two owners should be split.
+- No test tasks — verification is the "Done when" line plus build/typecheck. Exception: AI features get one **eval task** (owner `ai-engineer`, `ai-eval` skill) seeded from the PRD's quality-bar examples. Evals measure quality, not correctness, and never run in `pnpm test`.
 - Do not implement. Read-only commands only.

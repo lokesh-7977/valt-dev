@@ -1,19 +1,30 @@
 import { getHealth } from "@/lib/api";
 
 export async function HealthCard() {
+  let ok = false;
   let body: string;
 
   try {
     const health = await getHealth();
-    body = `${health.status} · ${health.service} v${health.version}`;
+    ok = health.status === "ok";
+    body = `${health.service} v${health.version}`;
   } catch {
-    body = "unreachable — is the FastAPI service running on :8000?";
+    body = "Unreachable. Is the FastAPI service running on :8000?";
   }
 
   return (
-    <div className="rounded-lg border border-black/10 p-4 dark:border-white/15">
-      <div className="text-xs font-medium uppercase tracking-wide opacity-60">API health</div>
-      <div className="mt-1 font-mono text-sm">{body}</div>
+    <div className="rounded-2xl bg-card p-6 text-card-foreground shadow-card">
+      <div className="flex items-center justify-between">
+        <span className="text-callout font-semibold">API health</span>
+        <span className="inline-flex items-center gap-1.5 text-footnote text-muted-foreground">
+          <span
+            aria-hidden
+            className={`size-2 rounded-full ${ok ? "bg-success" : "bg-destructive"}`}
+          />
+          {ok ? "Operational" : "Offline"}
+        </span>
+      </div>
+      <p className="mt-2 font-mono text-footnote text-muted-foreground">{body}</p>
     </div>
   );
 }

@@ -1,0 +1,8 @@
+# Used by infra/gcp/deploy.sh (BUILDER=cloudbuild). Build context: apps/api.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+options:
+  logging: CLOUD_LOGGING_ONLY   # required when building with a user-managed service account

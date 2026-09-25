@@ -1,3 +1,5 @@
+# Files not uploaded to Cloud Build by `gcloud builds submit apps/api`.
+.gcloudignore
 .venv/
 __pycache__/
 .pytest_cache/

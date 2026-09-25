@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Execute an engineering plan from docs/plans/ task by task — implement each task, verify it, check it off in the plan file, and keep going until the plan is done. Use when the user says execute, implement the plan, build it, ship it, start the work, or continue/resume a plan. Takes an optional plan slug argument.
+description: Execute an engineering plan from docs/plans/ task by task — implement each task, verify it, check it off in the plan file, and keep going until the plan is done. Use when the user says execute, implement the plan, build it, start the work, or continue/resume a plan. Takes an optional plan slug argument.
 ---
 
 # Execute
@@ -18,6 +18,10 @@ Run a plan from `docs/plans/<slug>-plan.md` to completion. Stateful: the plan fi
 4. **Per task, in order:**
    a. State the task ID and title in one line before starting.
    b. Implement exactly that task. Nothing from a later task, nothing the plan doesn't call for.
+      If the task has an **Owner**, follow that owner's rules: read `.claude/agents/<owner>.md` and
+      apply its skill (`engineering-backend-architect` for backend/ai, `postgres-sqlalchemy` for database,
+      `engineering-frontend-developer` for frontend, `gcp-deploy` for devops). Delegate the task to the owner agent only when the user asked for delegated or
+      parallel execution.
    c. Verify the "Done when" condition — run the real command, read the real output.
    d. Mark it `[x]` in the plan file immediately, before moving on.
 5. **When the plan is complete**, run the full gate (below) and report.

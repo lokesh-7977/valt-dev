@@ -60,6 +60,7 @@ Check what comes back before continuing:
 - file exists at `docs/product/<slug>-prd.md`
 - "Not in v1" is non-empty (an empty one means scope was not cut — send it back once)
 - every acceptance criterion is an observable statement
+- Evidence section has sources; AI features have a filled AI contract (≥3 quality examples, numeric budgets)
 
 Then go to stage 2 without asking.
 
@@ -75,6 +76,7 @@ Check what comes back:
   this yourself, do not trust the plan
 - any task changing an API shape touches **both** `apps/api/src/valt_api/schemas.py` and
   `packages/shared/src/index.ts`
+- every task has an Owner; AI features have an AI design section with budget math and an eval task
 
 A failed check goes back to the agent once with the specific defect. Twice failed → stop and tell the user.
 

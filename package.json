@@ -11,7 +11,11 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "api:install": "pnpm --filter @valt/api run install:deps",
-    "api:dev": "pnpm --filter @valt/api run dev"
+    "api:dev": "pnpm --filter @valt/api run dev",
+    "gcp:bootstrap": "bash infra/gcp/bootstrap.sh",
+    "gcp:deploy": "bash infra/gcp/deploy.sh",
+    "db:up": "docker compose up -d postgres",
+    "db:migrate": "pnpm --filter @valt/api run db:migrate"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

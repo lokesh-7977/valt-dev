@@ -8,12 +8,31 @@ dependencies = [
     "uvicorn[standard]>=0.34.0",
     "pydantic>=2.10.4",
     "pydantic-settings>=2.7.0",
+    # Database (ADR 0011)
+    "sqlalchemy[asyncio]>=2.1.0,<2.2",
+    "psycopg[binary,pool]>=3.3.6,<4",
+    "alembic>=1.20.0,<2",
+    # Gemini + uploads (ADR 0014)
+    "google-genai>=2.25.0,<3",
+    "python-multipart>=0.0.20",
 ]
 
 [project.optional-dependencies]
+# AI stack (ADR 0004–0006). Installed locally now; added to the Docker image when Phase 3 ships.
+# Add the provider package (e.g. langchain-openai / langchain-anthropic) once the provider is chosen.
+ai = [
+# Versions verified together on 2026-09-25 (crewai caps pydantic at 2.12.x). Upgrade as a set.
+# crewai pulls chromadb~=1.1 (unpatched server-side CVEs) — see ADR 0006 guard rules.
+    "langchain>=1.4.2,<1.5",
+    "langchain-core>=1.6.5,<1.7",
+    "langgraph>=1.2.12,<1.3",
+    "langgraph-checkpoint-postgres>=3.1.2,<3.2",
+    "crewai>=1.15.22,<1.16",
+    "pgvector>=0.5.0,<0.6",
+]
 dev = [
     "pytest>=8.3.4",
-    "pytest-asyncio>=0.25.0",
+    "pytest-asyncio>=1.4.0",
     "httpx>=0.28.1",
     "ruff>=0.8.4",
     "mypy>=1.14.0",
@@ -37,8 +56,11 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["db: needs a real Postgres (set API_TEST_DATABASE_URL)"]
 
 [tool.mypy]
-python_version = "3.11"
+# No python_version pin: numpy (via google-genai) ships 3.12-only stub syntax on newer
+# interpreters, so mypy checks against whichever Python runs it (CI: 3.11, Docker: 3.12).
 strict = true
 mypy_path = "src"

@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "install:deps": "python -m venv .venv && .venv/Scripts/python -m pip install -e \".[dev]\"",
+    "install:deps": "python -m venv .venv && .venv/Scripts/python -m pip install -e \".[dev,ai]\"",
     "dev": "uvicorn valt_api.main:app --reload --host 0.0.0.0 --port 8000 --app-dir src",
     "start": "uvicorn valt_api.main:app --host 0.0.0.0 --port 8000 --app-dir src",
     "lint": "ruff check src tests",
     "typecheck": "mypy src",
-    "test": "pytest"
+    "test": "pytest",
+    "db:migrate": "alembic upgrade head",
+    "db:revision": "alembic revision --autogenerate -m",
+    "db:downgrade": "alembic downgrade -1"
   }
 }

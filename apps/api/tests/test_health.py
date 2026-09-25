@@ -3,22 +3,29 @@ import pytest
 
 
 async def test_health_envelope(client: httpx.AsyncClient) -> None:
-    res = await client.get("/api/health")
+    res = await client.get("/api/v1/health")
     assert res.status_code == 200
     body = res.json()
     assert body["success"] is True
     assert body["data"]["status"] == "ok"
+    assert body["data"]["ai"] == "not_configured"
     assert body["meta"] is None
     assert res.headers["X-Request-ID"]
 
 
+async def test_unversioned_health_alias_for_probes(client: httpx.AsyncClient) -> None:
+    res = await client.get("/api/health")
+    assert res.status_code == 200
+    assert res.json()["data"]["status"] == "ok"
+
+
 async def test_request_id_is_echoed(client: httpx.AsyncClient) -> None:
-    res = await client.get("/api/health", headers={"X-Request-ID": "abc123"})
+    res = await client.get("/api/v1/health", headers={"X-Request-ID": "abc123"})
     assert res.headers["X-Request-ID"] == "abc123"
 
 
 async def test_ready_without_database_is_503(client: httpx.AsyncClient) -> None:
-    res = await client.get("/api/health/ready")
+    res = await client.get("/api/v1/health/ready")
     assert res.status_code == 503
     body = res.json()
     assert body["success"] is False
@@ -27,13 +34,13 @@ async def test_ready_without_database_is_503(client: httpx.AsyncClient) -> None:
 
 
 async def test_items_without_database_is_503(client: httpx.AsyncClient) -> None:
-    res = await client.get("/api/items")
+    res = await client.get("/api/v1/items")
     assert res.status_code == 503
     assert res.json()["error"]["code"] == "database_unavailable"
 
 
 async def test_unknown_route_uses_error_envelope(client: httpx.AsyncClient) -> None:
-    res = await client.get("/api/nope")
+    res = await client.get("/api/v1/nope")
     assert res.status_code == 404
     assert res.json() == {
         "success": False,
@@ -48,6 +55,6 @@ async def test_unknown_route_uses_error_envelope(client: httpx.AsyncClient) -> N
 
 @pytest.mark.db
 async def test_ready_with_database(db_client: httpx.AsyncClient) -> None:
-    res = await db_client.get("/api/health/ready")
+    res = await db_client.get("/api/v1/health/ready")
     assert res.status_code == 200
     assert res.json()["data"] == {"status": "ready", "database": "ok"}

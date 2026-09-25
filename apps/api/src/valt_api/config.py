@@ -1,5 +1,8 @@
+import tempfile
 from functools import lru_cache
+from pathlib import Path
 
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,12 +15,34 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     service_name: str = "valt-api"
 
+    # Logging: JSON lines (Cloud Logging friendly) in deployed envs, plain text locally.
+    log_level: str = "INFO"
+    log_json: bool = False
+
     # Postgres (ADR 0011): postgresql+psycopg://user:pass@host:5432/db
     # None → the API starts, but database-backed endpoints return 503.
     database_url: str | None = None
     db_pool_size: int = 5
     db_max_overflow: int = 10
     db_echo: bool = False
+
+    # Gemini (ADR 0014). None → the API starts, but AI endpoints return 503.
+    # Also read as GEMINI_API_KEY, or API_LLM_API_KEY / API_LLM_MODEL (infra/gcp/deploy.sh).
+    gemini_api_key: SecretStr | None = Field(
+        default=None,
+        validation_alias=AliasChoices("API_GEMINI_API_KEY", "GEMINI_API_KEY", "API_LLM_API_KEY"),
+    )
+    gemini_model: str = Field(
+        default="gemini-3.8-flash",
+        validation_alias=AliasChoices("API_GEMINI_MODEL", "API_LLM_MODEL"),
+    )
+    gemini_timeout_s: float = 90.0
+    gemini_max_retries: int = 2  # SDK-level retries on 429/5xx
+
+    # Uploads. Local disk by default — ephemeral and per-instance on Cloud Run.
+    upload_dir: Path = Path(tempfile.gettempdir()) / "valt-uploads"
+    max_upload_mb: int = 20
+    max_files_per_request: int = 10
 
 
 @lru_cache

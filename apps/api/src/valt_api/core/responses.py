@@ -46,3 +46,15 @@ ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     422: {"model": ApiErrorResponse, "description": "Validation error"},
     503: {"model": ApiErrorResponse, "description": "Dependency unavailable"},
 }
+
+AI_ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
+    **ERROR_RESPONSES,
+    422: {
+        "model": ApiErrorResponse,
+        "description": "Validation error, or ai_bad_request / ai_blocked",
+    },
+    429: {"model": ApiErrorResponse, "description": "AI quota hit (ai_rate_limited)"},
+    502: {"model": ApiErrorResponse, "description": "AI provider error / invalid AI output"},
+    503: {"model": ApiErrorResponse, "description": "AI not configured (ai_unavailable)"},
+    504: {"model": ApiErrorResponse, "description": "AI timed out (ai_timeout)"},
+}

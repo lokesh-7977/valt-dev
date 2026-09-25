@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -8,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from valt_api.core.logging import request_id_var
 from valt_api.core.responses import ApiErrorResponse, ErrorDetail
 
 logger = logging.getLogger(__name__)
@@ -22,9 +24,12 @@ _STATUS_CODES: dict[int, str] = {
     405: "method_not_allowed",
     409: "conflict",
     413: "payload_too_large",
+    415: "unsupported_media_type",
     422: "validation_error",
     429: "rate_limited",
+    502: "bad_gateway",
     503: "service_unavailable",
+    504: "gateway_timeout",
 }
 
 
@@ -53,6 +58,68 @@ class NotFoundError(AppError):
 class DatabaseUnavailableError(AppError):
     def __init__(self, message: str = "database is not available") -> None:
         super().__init__(status.HTTP_503_SERVICE_UNAVAILABLE, "database_unavailable", message)
+
+
+class PayloadTooLargeError(AppError):
+    def __init__(self, max_mb: int) -> None:
+        super().__init__(
+            status.HTTP_413_CONTENT_TOO_LARGE, "payload_too_large", f"file exceeds {max_mb} MB"
+        )
+
+
+class UnsupportedMediaError(AppError):
+    def __init__(self, content_type: str) -> None:
+        super().__init__(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            "unsupported_media_type",
+            f"unsupported file type: {content_type or 'unknown'}",
+        )
+
+
+# ---- AI errors (provider-agnostic; services/gemini translates SDK errors into these) ----
+
+
+class AIUnavailableError(AppError):
+    def __init__(self, message: str = "AI is not configured (set GEMINI_API_KEY)") -> None:
+        super().__init__(status.HTTP_503_SERVICE_UNAVAILABLE, "ai_unavailable", message)
+
+
+class AIRateLimitedError(AppError):
+    def __init__(self) -> None:
+        super().__init__(
+            status.HTTP_429_TOO_MANY_REQUESTS, "ai_rate_limited", "AI quota hit, retry shortly"
+        )
+
+
+class AITimeoutError(AppError):
+    def __init__(self) -> None:
+        super().__init__(status.HTTP_504_GATEWAY_TIMEOUT, "ai_timeout", "AI request timed out")
+
+
+class AIUpstreamError(AppError):
+    def __init__(self, message: str = "AI provider error, retry shortly") -> None:
+        super().__init__(status.HTTP_502_BAD_GATEWAY, "ai_upstream_error", message)
+
+
+class AIRequestRejectedError(AppError):
+    """The provider refused the input (bad file, unsupported schema, too many tokens...)."""
+
+    def __init__(self, message: str = "the AI provider rejected this request") -> None:
+        super().__init__(status.HTTP_422_UNPROCESSABLE_CONTENT, "ai_bad_request", message)
+
+
+class AIBlockedError(AppError):
+    def __init__(self) -> None:
+        super().__init__(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "ai_blocked",
+            "the AI declined to answer (safety filter)",
+        )
+
+
+class AIInvalidOutputError(AppError):
+    def __init__(self, message: str = "AI returned an invalid response, try again") -> None:
+        super().__init__(status.HTTP_502_BAD_GATEWAY, "ai_invalid_output", message)
 
 
 def _request_id(request: Request) -> str | None:
@@ -123,6 +190,19 @@ def install_error_handling(app: FastAPI) -> None:
         incoming = request.headers.get(REQUEST_ID_HEADER, "")
         rid = incoming if 0 < len(incoming) <= 128 else uuid.uuid4().hex
         request.state.request_id = rid
-        response = await call_next(request)
-        response.headers[REQUEST_ID_HEADER] = rid
-        return response
+        token = request_id_var.set(rid)
+        start = time.perf_counter()
+        try:
+            response = await call_next(request)
+            response.headers[REQUEST_ID_HEADER] = rid
+            # Path only — query strings can carry user data.
+            logger.info(
+                "%s %s -> %s (%.0f ms)",
+                request.method,
+                request.url.path,
+                response.status_code,
+                (time.perf_counter() - start) * 1000,
+            )
+            return response
+        finally:
+            request_id_var.reset(token)

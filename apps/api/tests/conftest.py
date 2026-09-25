@@ -8,11 +8,13 @@ import httpx
 import pytest
 from alembic import command
 from alembic.config import Config
+from fakes import FakeModelClient
 from httpx import ASGITransport
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from valt_api.main import app
+from valt_api.services.storage import LocalFileStorage
 
 API_DIR = Path(__file__).resolve().parents[1]
 TEST_DB_URL = os.environ.get("API_TEST_DATABASE_URL")
@@ -43,11 +45,30 @@ async def _client() -> AsyncIterator[httpx.AsyncClient]:
 
 
 @pytest.fixture
-async def client() -> AsyncIterator[httpx.AsyncClient]:
-    """App with no database configured (ASGITransport doesn't run lifespan)."""
+async def client(tmp_path: Path) -> AsyncIterator[httpx.AsyncClient]:
+    """App with no database and no AI configured (ASGITransport doesn't run lifespan)."""
     app.state.sessionmaker = None
+    app.state.model_client = None
+    app.state.storage = LocalFileStorage(tmp_path / "uploads")
     async for c in _client():
         yield c
+
+
+@pytest.fixture
+def fake_model() -> FakeModelClient:
+    return FakeModelClient()
+
+
+@pytest.fixture
+async def ai_client(
+    client: httpx.AsyncClient, fake_model: FakeModelClient
+) -> AsyncIterator[httpx.AsyncClient]:
+    """`client` with the Gemini client swapped for a scripted fake."""
+    app.state.model_client = fake_model
+    try:
+        yield client
+    finally:
+        app.state.model_client = None
 
 
 @pytest.fixture(scope="session")

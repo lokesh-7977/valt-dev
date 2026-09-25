@@ -1,0 +1,67 @@
+name: Deploy API (GCP Cloud Run)
+
+on:
+  workflow_dispatch: # the one-click "Run workflow" button
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "infra/gcp/**"
+      - ".github/workflows/deploy-api.yml"
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: apps/api/pyproject.toml
+      - run: pip install -e ".[dev]"
+      - run: ruff check src tests
+      - run: mypy src
+      - run: pytest
+
+  deploy:
+    needs: test
+    # Skip cleanly until bootstrap has been run and repo variables are set.
+    if: vars.GCP_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write # Workload Identity Federation
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build, migrate, deploy
+        run: bash infra/gcp/deploy.sh
+        env:
+          SKIP_BOOTSTRAP: "1"
+          BUILDER: docker
+          IMAGE_TAG: ${{ github.sha }}
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ vars.GCP_REGION }}
+          CORS_ORIGINS: ${{ vars.API_CORS_ORIGINS }}
+          ALLOW_UNAUTHENTICATED: ${{ vars.ALLOW_UNAUTHENTICATED }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}

@@ -22,6 +22,9 @@ services:
     environment:
       API_CORS_ORIGINS: '["http://localhost:3000"]'
       API_DATABASE_URL: postgresql+psycopg://valt:valt@postgres:5432/valt
+      # Put GEMINI_API_KEY in a root .env (git-ignored) or export it before `docker compose up`.
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      API_GEMINI_MODEL: ${API_GEMINI_MODEL:-gemini-3.8-flash}
     volumes:
       - ./apps/api/src:/app/src
       - ./apps/api/migrations:/app/migrations

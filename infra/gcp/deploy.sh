@@ -45,6 +45,7 @@ ENV_FILE="$(mktemp)"
 trap 'rm -f "$ENV_FILE"' EXIT
 {
   echo "API_ENV: \"production\""
+  echo "API_LOG_JSON: \"true\""
   echo "API_CORS_ORIGINS: '${CORS_ORIGINS}'"
   echo "CREWAI_DISABLE_TELEMETRY: \"true\""
   if [[ -n "$LLM_PROVIDER" ]]; then echo "API_LLM_PROVIDER: \"${LLM_PROVIDER}\""; fi

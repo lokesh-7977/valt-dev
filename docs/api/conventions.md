@@ -1,6 +1,6 @@
 # API Conventions
 
-Every endpoint under `/api` follows these rules. Decision: [ADR 0013](../adr/0013-standard-api-response-envelope.md).
+Every endpoint under `/api/v1` follows these rules. `GET /api/health` is also served unversioned for infra probes. Decision: [ADR 0013](../adr/0013-standard-api-response-envelope.md).
 Implementation: `apps/api/src/valt_api/core/responses.py` and `core/errors.py`. TypeScript mirror:
 `packages/shared/src/index.ts`, and the client in `apps/web/src/lib/api.ts`.
 
@@ -66,7 +66,15 @@ Lists are keyset-paginated (never offset), newest first, `limit` 1–100 (defaul
 | 403 | `forbidden` | authenticated but not allowed |
 | 404 | `not_found` | resource doesn't exist *or* isn't visible to the caller |
 | 409 | `conflict` | uniqueness / state conflict |
+| 413 | `payload_too_large` | upload over `API_MAX_UPLOAD_MB` |
+| 415 | `unsupported_media_type` | upload type not in `SUPPORTED_MIME_TYPES` |
 | 422 | `validation_error` | body/query/path failed validation |
+| 422 | `missing_variables` / `ai_bad_request` / `ai_blocked` | template variable missing / Gemini rejected the input / safety block |
+| 404 | `unknown_task` | `/process` task or `/generate` template not registered |
+| 429 | `ai_rate_limited` | Gemini quota hit |
+| 502 | `ai_upstream_error` / `ai_invalid_output` | Gemini failed / returned JSON that doesn't fit the schema (after one retry) |
+| 503 | `ai_unavailable` | `GEMINI_API_KEY` missing or rejected |
+| 504 | `ai_timeout` | Gemini exceeded `API_GEMINI_TIMEOUT_S` |
 | 429 | `rate_limited` | quota or rate limit hit (Phase 9); `Retry-After` header set |
 | 500 | `internal_error` | unexpected failure (logged with request id) |
 | 503 | `database_unavailable` / `service_unavailable` | dependency down or not configured |
@@ -76,7 +84,7 @@ The handlers build the envelope.
 
 ## Resource conventions
 
-- Plural nouns: `/api/items`, `/api/threads/{id}/messages`.
+- Plural nouns: `/api/v1/items`, `/api/v1/threads/{id}/messages`.
 - `GET` list · `POST` create · `GET /{id}` read · `PATCH /{id}` partial update · `DELETE /{id}`.
 - JSON fields in `snake_case`. Timestamps are ISO-8601 UTC. IDs are integers for internal tables
   and UUIDs for shareable resources (threads, documents).
@@ -84,11 +92,13 @@ The handlers build the envelope.
 - Every write endpoint commits exactly once. Repositories only flush.
 - Request and response models live in `schemas.py`, mirrored in `packages/shared` (`/sync-contract`).
 
-## Streaming endpoints (Phase 3+)
+## Streaming endpoints
 
-AI runs (`POST /api/<feature>/runs`) return `text/event-stream`, not the envelope. Events are
-`token`, `step`, `interrupt`, `done`, `error` (ADR 0007). The `error` event's data has the same
-shape as `error` above.
+Streaming endpoints (`POST /api/v1/generate/stream`, and later `POST /api/v1/<feature>/runs`)
+return `text/event-stream`, not the envelope. The events are `token` (`{"text"}`), `step`,
+`interrupt`, `done` and `error` (ADR 0007). The `error` event's data has the same shape as `error`
+above. If a request fails before streaming starts (validation, AI not configured), you get a
+normal JSON envelope instead.
 
 ## Headers
 

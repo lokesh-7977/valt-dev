@@ -24,6 +24,7 @@ Format: lightweight [MADR](https://adr.github.io/madr/). Copy [`template.md`](te
 | [0011](0011-postgres-with-sqlalchemy-and-alembic.md) | PostgreSQL with SQLAlchemy 2.0 (async) and Alembic | Accepted |
 | [0012](0012-deploy-api-to-gcp-cloud-run.md) | Deploy the API to GCP Cloud Run with Cloud SQL | Accepted |
 | [0013](0013-standard-api-response-envelope.md) | Standard API response envelope | Accepted |
+| [0014](0014-gemini-direct-behind-ai-service.md) | Call Gemini directly (google-genai) behind an AIService layer | Accepted |
 
 ## How the AI decisions fit together
 

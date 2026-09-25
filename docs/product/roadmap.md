@@ -63,14 +63,14 @@ and a deploy path.
 | --- | --- | --- | --- |
 | GET | `/api/health` | 200 `HealthResponse` | liveness, no dependencies |
 | GET | `/api/health/ready` | 200 `ReadinessResponse` / 503 | DB reachable |
-| GET | `/api/items?limit&cursor` | 200 `Item[]` + `meta` | newest first, keyset pagination |
-| POST | `/api/items` | 201 `Item` | `{name, description?}` |
-| GET | `/api/items/{id}` | 200 `Item` / 404 | |
-| PATCH | `/api/items/{id}` | 200 `Item` / 404 | partial |
-| DELETE | `/api/items/{id}` | 204 / 404 | |
+| GET | `/api/v1/items?limit&cursor` | 200 `Item[]` + `meta` | newest first, keyset pagination |
+| POST | `/api/v1/items` | 201 `Item` | `{name, description?}` |
+| GET | `/api/v1/items/{id}` | 200 `Item` / 404 | |
+| PATCH | `/api/v1/items/{id}` | 200 `Item` / 404 | partial |
+| DELETE | `/api/v1/items/{id}` | 204 / 404 | |
 
 ```json
-POST /api/items  {"name": "Quarterly plan"}
+POST /api/v1/items  {"name": "Quarterly plan"}
 → 201 {"success": true, "data": {"id": 1, "name": "Quarterly plan", "description": null,
        "created_at": "2026-09-25T09:12:03Z", "updated_at": "2026-09-25T09:12:03Z"}, "meta": null}
 ```

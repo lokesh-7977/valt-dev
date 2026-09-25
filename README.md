@@ -27,7 +27,11 @@ pnpm db:migrate       # alembic upgrade head
 ```
 
 Without a database the API still starts; `/api/health` works and DB endpoints return
-`503 database_unavailable`.
+`503 database_unavailable`. Without `GEMINI_API_KEY`, AI endpoints return `503 ai_unavailable`.
+
+Routes are versioned under `/api/v1`. The generic Gemini endpoints (`/upload`, `/analyze`,
+`/generate`, `/generate/stream`, `/process`) and how to add domain logic on hackathon day are
+covered in [docs/api/ai-backend.md](docs/api/ai-backend.md).
 
 Run the DB tests against a separate database:
 `API_TEST_DATABASE_URL=postgresql+psycopg://valt:valt@localhost:5432/valt_test pnpm --filter @valt/api test`

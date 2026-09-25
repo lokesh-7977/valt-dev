@@ -67,7 +67,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ## Key factory + queryOptions per feature
 
-Uses the real `/api/items` endpoints and `@valt/shared` types.
+Uses the real `/api/v1/items` endpoints and `@valt/shared` types.
 
 ```ts
 // apps/web/src/lib/queries/items.ts

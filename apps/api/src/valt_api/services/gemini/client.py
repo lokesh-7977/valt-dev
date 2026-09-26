@@ -27,6 +27,7 @@ from valt_api.core.errors import (
     AppError,
 )
 from valt_api.services.ai.types import (
+    ComputerUseSession,
     GenerationOptions,
     InputPart,
     JsonResult,
@@ -66,6 +67,29 @@ class GeminiClient:
 
     async def aclose(self) -> None:
         await self._client.aio.aclose()
+
+    def computer_use_session(
+        self,
+        *,
+        system: str,
+        goal: str,
+        screenshot_png: bytes,
+        url: str,
+        model: str,
+        keep_screenshots: int,
+    ) -> ComputerUseSession:
+        # Imported here: computer_use.py reuses this module's error mapping.
+        from valt_api.services.gemini.computer_use import GeminiComputerUseSession
+
+        return GeminiComputerUseSession(
+            self._client,
+            model=model,
+            system=system,
+            goal=goal,
+            screenshot_png=screenshot_png,
+            url=url,
+            keep_screenshots=keep_screenshots,
+        )
 
     async def generate_text(
         self, parts: Sequence[InputPart], options: GenerationOptions

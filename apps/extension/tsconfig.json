@@ -1,12 +1,15 @@
 {
   "extends": "../../packages/tsconfig/base.json",
   "compilerOptions": {
-    "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
-    "types": ["chrome", "node", "vite/client"],
-    "resolveJsonModule": true
+    "types": ["chrome", "node"],
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "isolatedModules": true
   },
-  "include": ["src/**/*", "test/**/*", "e2e/**/*", "*.ts"]
+  "include": ["src/**/*.ts"]
 }

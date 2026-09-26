@@ -1,31 +1,9 @@
 {
   "name": "@valt/demo-erp",
-  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5180 --strictPort",
-    "build": "vite build",
-    "preview": "vite preview --port 5180 --strictPort",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.0",
-    "@types/node": "^22.10.2",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
-    "@valt/protocol": "workspace:*",
-    "@vitejs/plugin-react": "^6.1.1",
-    "eslint": "^9.39.0",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.70.1",
-    "vite": "^8.3.1",
-    "vitest": "^4.1.11"
+    "dev": "node server.mjs",
+    "start": "node server.mjs"
   }
 }

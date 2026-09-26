@@ -3,33 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "description": "ALT — autonomous AI QA teammate, delivered as a Chrome (MV3) extension.",
   "scripts": {
-    "dev": "vite build --watch --mode development",
-    "build": "vite build",
-    "lint": "eslint .",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "node --test \"src/**/*.test.ts\"",
+    "e2e": "node scripts/build.mjs && node --test e2e/explorer.e2e.mjs"
   },
   "dependencies": {
-    "@valt/protocol": "workspace:*",
-    "preact": "^10.29.8"
+    "@valt/shared": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@crxjs/vite-plugin": "~2.7.1",
-    "@eslint/js": "^9.39.0",
-    "@preact/preset-vite": "^2.10.6",
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/chrome": "^0.3.0",
+    "@types/chrome": "^0.1.4",
     "@types/node": "^22.10.2",
-    "@valt/demo-erp": "workspace:*",
-    "@valt/mock-helper": "workspace:*",
-    "eslint": "^9.39.0",
-    "happy-dom": "^20.14.5",
-    "tailwindcss": "^4.3.3",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.70.1",
-    "vite": "^8.3.1",
-    "vitest": "^4.1.11"
+    "esbuild": "^0.25.10",
+    "playwright": "^1.55.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22.18"
   }
 }

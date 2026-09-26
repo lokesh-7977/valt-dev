@@ -114,3 +114,58 @@ class ModelClient(Protocol):
     ) -> AsyncIterator[str]: ...
 
     async def aclose(self) -> None: ...
+
+
+# ---- Computer use (live QA agent, ADR 0016) ----
+
+
+@dataclass(frozen=True, slots=True)
+class ActionCall:
+    """One UI action the model asked for (click, type, navigate, ...).
+
+    `args` excludes `intent` and `safety_decision`; coordinates are normalised to 0-1000.
+    """
+
+    id: str | None
+    name: str
+    args: dict[str, Any]
+    intent: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ActionOutcome:
+    """What happened when we executed an ActionCall, sent back to the model."""
+
+    call_id: str | None
+    name: str
+    url: str
+    screenshot_png: bytes | None
+    result: dict[str, Any]
+    safety_ack: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ComputerUseReply:
+    calls: list[ActionCall]
+    text: str | None
+    safety: dict[str, Any] | None  # e.g. {"decision": "require_confirmation", "explanation": ...}
+    usage: Usage | None = None
+
+
+class ComputerUseSession(Protocol):
+    """A multi-turn computer-use conversation. `next([])` sends the opening turn."""
+
+    async def next(self, outcomes: Sequence[ActionOutcome]) -> ComputerUseReply: ...
+
+
+class ComputerUseProvider(Protocol):
+    def computer_use_session(
+        self,
+        *,
+        system: str,
+        goal: str,
+        screenshot_png: bytes,
+        url: str,
+        model: str,
+        keep_screenshots: int,
+    ) -> ComputerUseSession: ...

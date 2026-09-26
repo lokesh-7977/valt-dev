@@ -148,3 +148,91 @@ export type GenerateStreamEvent =
   | { event: "token"; data: { text: string } }
   | { event: "done"; data: { model: string } }
   | { event: "error"; data: ApiErrorBody["error"] };
+
+// ---- Live QA agent (ADR 0016) ----
+
+export type QARunStatus =
+  | "running"
+  | "passed"
+  | "bug_found"
+  | "inconclusive"
+  | "stopped"
+  | "needs_confirmation"
+  | "blocked"
+  | "error";
+export type QATrigger = "manual" | "save";
+export type QAVerdict = "bug" | "pass" | "inconclusive";
+
+export interface QAScenario {
+  id: string;
+  title: string;
+  goal: string;
+  start_url: string;
+}
+
+export interface QARunRequest {
+  scenario_id?: string;
+}
+
+/** Sent by the editor (or sample_app/watch.py) on every save. */
+export interface QASaveHookRequest {
+  path?: string | null;
+  scenario_id?: string | null;
+}
+
+export interface QASaveHookResponse {
+  scheduled: boolean;
+  debounce_ms: number;
+}
+
+export interface QAStopResponse {
+  stopped: boolean;
+  run_id: string | null;
+}
+
+export interface QARunInfo {
+  run_id: string;
+  scenario_id: string;
+  trigger: QATrigger;
+  status: QARunStatus;
+  started_at: string;
+}
+
+export interface QAStepEvent {
+  run_id: string;
+  index: number;
+  kind: "run_started" | "action" | "blocked";
+  action: string | null;
+  intent: string | null;
+  args: Record<string, unknown> | null;
+  url: string | null;
+  screenshot_png_b64: string | null;
+  note: string | null;
+  /** Set only when kind is run_started. */
+  run: QARunInfo | null;
+}
+
+export interface QAInterruptEvent {
+  run_id: string;
+  reason: "safety_confirmation";
+  explanation: string;
+}
+
+export interface QADoneEvent {
+  run: QARunInfo;
+  verdict: QAVerdict;
+  summary: string;
+  findings: string[];
+  steps: number;
+  duration_ms: number;
+  usage: Usage | null;
+}
+
+/** SSE events from GET /qa/events (one long-lived subscription covering every run). */
+export type QAStreamEvent =
+  | { event: "step"; data: QAStepEvent }
+  | { event: "interrupt"; data: QAInterruptEvent }
+  | { event: "done"; data: QADoneEvent }
+  | { event: "error"; data: ApiErrorBody["error"] };
+
+export * from "./alt";

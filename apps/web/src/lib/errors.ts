@@ -15,6 +15,11 @@ const BY_CODE: Record<string, Omit<UserFacingError, "requestId">> = {
     description: "The AI service isn't configured right now. Try again in a moment.",
     retryable: true,
   },
+  qa_unavailable: {
+    title: "QA browser not installed",
+    description: "Install the API's qa extra and run `python -m playwright install chromium`.",
+    retryable: false,
+  },
   ai_rate_limited: {
     title: "Busy right now",
     description: "We hit a usage limit. Wait a few seconds and try again.",

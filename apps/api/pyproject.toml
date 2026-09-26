@@ -30,6 +30,11 @@ ai = [
     "crewai>=1.15.22,<1.16",
     "pgvector>=0.5.0,<0.6",
 ]
+# Live QA agent (ADR 0016). Local/dev only: the Cloud Run image does not install it,
+# so the /qa endpoints return 503 qa_unavailable there. Browser: `python -m playwright install chromium`.
+qa = [
+    "playwright>=1.63,<1.64",
+]
 dev = [
     "pytest>=8.3.4",
     "pytest-asyncio>=1.4.0",
@@ -57,7 +62,10 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-markers = ["db: needs a real Postgres (set API_TEST_DATABASE_URL)"]
+markers = [
+    "db: needs a real Postgres (set API_TEST_DATABASE_URL)",
+    "browser: launches a real Chromium via Playwright (set QA_BROWSER_TESTS=1)",
+]
 
 [tool.mypy]
 # No python_version pin: numpy (via google-genai) ships 3.12-only stub syntax on newer

@@ -10,6 +10,7 @@ export const siteConfig = {
   nav: [
     { href: "/analyze", label: "Analyze" },
     { href: "/dashboard", label: "Overview" },
+    { href: "/qa", label: "Live QA" },
     { href: "/kit", label: "UI kit", devOnly: true },
   ],
   primaryCta: { href: "/analyze", label: "Start an analysis" },

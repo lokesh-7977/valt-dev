@@ -39,6 +39,17 @@ class Settings(BaseSettings):
     gemini_timeout_s: float = 90.0
     gemini_max_retries: int = 2  # SDK-level retries on 429/5xx
 
+    # Live QA agent (ADR 0016). Needs the `qa` extra + Chromium; otherwise /qa returns 503.
+    qa_model: str = "gemini-3.8-flash"
+    qa_allowed_hosts: list[str] = ["localhost:8001", "127.0.0.1:8001"]
+    qa_max_steps: int = 15
+    qa_run_timeout_s: float = 120.0
+    qa_debounce_ms: int = 1500
+    qa_screen_width: int = 1440
+    qa_screen_height: int = 900
+    qa_keep_screenshots: int = 3  # older screenshots are dropped from the model history
+    qa_headless: bool = True
+
     # Uploads. Local disk by default — ephemeral and per-instance on Cloud Run.
     upload_dir: Path = Path(tempfile.gettempdir()) / "valt-uploads"
     max_upload_mb: int = 20

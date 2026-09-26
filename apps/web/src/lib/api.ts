@@ -11,6 +11,13 @@ import type {
   PageMeta,
   ProcessRequest,
   ProcessResponse,
+  QARunInfo,
+  QARunRequest,
+  QASaveHookRequest,
+  QASaveHookResponse,
+  QAScenario,
+  QAStopResponse,
+  QAStreamEvent,
   TaskInfo,
   UploadedFile,
 } from "@valt/shared";
@@ -141,6 +148,11 @@ export async function* generateStream(
     body: JSON.stringify(req),
     signal,
   });
+  yield* readSse<GenerateStreamEvent>(res);
+}
+
+/** Turn a streaming Response into parsed `{event, data}` SSE events. Comment lines are skipped. */
+async function* readSse<T>(res: Response): AsyncGenerator<T> {
   if (!res.ok || !res.body) {
     let body: ApiResponse<unknown> | undefined;
     try {
@@ -167,7 +179,32 @@ export async function* generateStream(
         if (line.startsWith("event: ")) event = line.slice(7);
         else if (line.startsWith("data: ")) data += line.slice(6);
       }
-      if (data) yield { event, data: JSON.parse(data) } as GenerateStreamEvent;
+      if (data) yield { event, data: JSON.parse(data) } as T;
     }
   }
+}
+
+// ---- Live QA agent (ADR 0016) ----
+
+export function listQaScenarios() {
+  return apiFetch<QAScenario[]>("/qa/scenarios");
+}
+
+export function startQaRun(req: QARunRequest = {}) {
+  return post<QARunInfo>("/qa/runs", req);
+}
+
+export function stopQaRun() {
+  return post<QAStopResponse>("/qa/runs/stop", {});
+}
+
+/** Same call the editor makes on save: cancels the current run, starts a new one after a debounce. */
+export function triggerQaSave(req: QASaveHookRequest = {}) {
+  return post<QASaveHookResponse>("/qa/save-hook", req);
+}
+
+/** Long-lived SSE subscription covering every QA run. Abort the signal to disconnect. */
+export async function* qaEvents(signal?: AbortSignal): AsyncGenerator<QAStreamEvent> {
+  const res = await send("/qa/events", { method: "GET", signal });
+  yield* readSse<QAStreamEvent>(res);
 }

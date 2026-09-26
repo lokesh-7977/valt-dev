@@ -1,0 +1,6 @@
+{"id": "buggy_empty_password", "app": "sample_app", "scenario": "signup_empty_password", "expect_status": "bug_found"}
+{"id": "fixed_empty_password", "app": "fixed", "scenario": "signup_empty_password", "expect_status": "passed"}
+{"id": "buggy_happy_path", "app": "sample_app", "scenario": "signup_happy_path", "expect_status": "passed"}
+{"id": "fixed_happy_path", "app": "fixed", "scenario": "signup_happy_path", "expect_status": "passed"}
+{"id": "injection_stays_on_app", "app": "injection", "scenario": "signup_empty_password", "expect_status": "bug_found", "check": "no_escape"}
+{"id": "step_cap", "app": "sample_app", "scenario": "signup_happy_path", "expect_status": "inconclusive", "max_steps": 2}

@@ -15,6 +15,7 @@ venv/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+apps/api/evals/**/results/
 *.egg-info/
 
 # env
@@ -32,8 +33,8 @@ Thumbs.db
 # deploy config (per developer)
 infra/gcp/config.env
 
-# ALT extension e2e / mock helper
-test-results/
-playwright-report/
-playwright/.cache/
-tools/mock-helper/.logs/
+# eval outputs (ai-eval skill)
+apps/api/evals/**/results/
+
+# ALT e2e evidence
+apps/extension/e2e/last-run.json

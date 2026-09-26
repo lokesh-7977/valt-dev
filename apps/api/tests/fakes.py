@@ -1,10 +1,20 @@
 """Scripted stand-in for GeminiClient. Tests set replies/errors and inspect `calls`."""
 
+import asyncio
 from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from valt_api.services.ai import GenerationOptions, InputPart, JsonResult, TextResult, Usage
+from valt_api.services.ai import (
+    ActionCall,
+    ActionOutcome,
+    ComputerUseReply,
+    GenerationOptions,
+    InputPart,
+    JsonResult,
+    TextResult,
+    Usage,
+)
 
 VALID_ANALYSIS = {
     "summary": "A short summary.",
@@ -68,3 +78,78 @@ class FakeModelClient:
 
     async def aclose(self) -> None:
         return None
+
+
+# ---- Live QA agent ----
+
+PNG_BYTES = b"\x89PNG\r\n\x1a\nfake"
+
+
+@dataclass
+class FakeComputerUseSession:
+    # Popped in order; an Exception entry is raised. Empty list -> a PASS report.
+    replies: list[Any]
+    received: list[list[ActionOutcome]] = field(default_factory=list)
+
+    async def next(self, outcomes: Sequence[ActionOutcome]) -> ComputerUseReply:
+        self.received.append(list(outcomes))
+        reply = (
+            self.replies.pop(0)
+            if self.replies
+            else ComputerUseReply(calls=[], text="VERDICT: PASS\nSUMMARY: ok", safety=None)
+        )
+        if isinstance(reply, Exception):
+            raise reply
+        assert isinstance(reply, ComputerUseReply)
+        return reply
+
+
+@dataclass
+class FakeComputerUse:
+    replies: list[Any] = field(default_factory=list)
+    sessions: list[FakeComputerUseSession] = field(default_factory=list)
+
+    def computer_use_session(
+        self,
+        *,
+        system: str,
+        goal: str,
+        screenshot_png: bytes,
+        url: str,
+        model: str,
+        keep_screenshots: int,
+    ) -> FakeComputerUseSession:
+        session = FakeComputerUseSession(list(self.replies))
+        self.sessions.append(session)
+        return session
+
+
+@dataclass
+class FakeRunPage:
+    url: str = "http://localhost:8001/"
+    executed: list[ActionCall] = field(default_factory=list)
+    delay_s: float = 0.0
+    closed: bool = False
+
+    async def goto(self, url: str) -> None:
+        self.url = url
+
+    async def snapshot(self) -> tuple[str, bytes]:
+        return self.url, PNG_BYTES
+
+    async def execute(self, call: ActionCall) -> dict[str, Any]:
+        if self.delay_s:
+            await asyncio.sleep(self.delay_s)
+        self.executed.append(call)
+        return {}
+
+    async def close(self) -> None:
+        self.closed = True
+
+
+def action(name: str, intent: str = "do it", **args: Any) -> ActionCall:
+    return ActionCall(id=f"id-{name}", name=name, args=dict(args), intent=intent)
+
+
+def reply(*calls: ActionCall, text: str | None = None, safety: Any = None) -> ComputerUseReply:
+    return ComputerUseReply(calls=list(calls), text=text, safety=safety, usage=Usage(10, 2, 12))

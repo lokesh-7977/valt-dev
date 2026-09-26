@@ -1,0 +1,26 @@
+{
+  "name": "@valt/mock-helper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@valt/protocol": "workspace:*",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.10.2",
+    "@types/ws": "^8.18.1",
+    "eslint": "^9.39.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^4.1.11"
+  }
+}

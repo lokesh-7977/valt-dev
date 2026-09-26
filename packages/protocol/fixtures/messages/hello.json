@@ -1,0 +1,10 @@
+{
+  "type": "hello",
+  "id": "fx-hello-1",
+  "ts": 1790000001000,
+  "payload": {
+    "token": "4F7K-92QD",
+    "extVersion": "0.1.0",
+    "v": 1
+  }
+}

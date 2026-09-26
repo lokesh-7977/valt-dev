@@ -1,0 +1,9 @@
+{
+  "type": "bug_action",
+  "id": "fx-bug_action-5",
+  "ts": 1790000005000,
+  "payload": {
+    "bugId": "bug-discount-dropped",
+    "action": "copy_fix_prompt"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "activity",
+  "id": "fx-activity-9",
+  "ts": 1790000009000,
+  "payload": {
+    "agent": "contract",
+    "message": "Checking POST /api/invoices",
+    "progress": {
+      "done": 14,
+      "total": 32
+    }
+  }
+}

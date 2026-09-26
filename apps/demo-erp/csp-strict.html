@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  Strict-CSP test page for ALT (PRD story 11). The server sends
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'
+  so no inline script or style is allowed here. img-src stays at 'self', which means ALT
+  screenshots from 127.0.0.1:7777 WILL be blocked on this page. That is expected; the ALT card
+  shows "Screenshot blocked by page policy".
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>demo-erp · strict CSP</title>
+  </head>
+  <body>
+    <main>
+      <h1>Quick order (strict CSP)</h1>
+      <form id="csp-form" data-testid="csp-form">
+        <label for="csp-customer">Customer</label>
+        <input id="csp-customer" name="customer" data-testid="csp-customer" value="Globex" />
+        <label for="csp-amount">Amount</label>
+        <input id="csp-amount" name="amount" data-testid="csp-amount" value="12.50" />
+        <button type="submit" data-testid="csp-submit">Submit</button>
+      </form>
+      <p id="csp-status" role="status" data-testid="csp-status"></p>
+    </main>
+    <script type="module" src="/src/csp-strict.ts"></script>
+  </body>
+</html>

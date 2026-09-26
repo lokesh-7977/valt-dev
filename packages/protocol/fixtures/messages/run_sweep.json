@@ -1,0 +1,9 @@
+{
+  "type": "run_sweep",
+  "id": "fx-run_sweep-3",
+  "ts": 1790000003000,
+  "payload": {
+    "target": "localhost",
+    "role": "clerk"
+  }
+}

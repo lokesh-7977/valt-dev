@@ -1,0 +1,9 @@
+{
+  "type": "error",
+  "id": "fx-error-15",
+  "ts": 1790000015000,
+  "payload": {
+    "code": "auth_failed",
+    "message": "Invalid pairing token"
+  }
+}

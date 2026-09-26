@@ -1,8 +1,10 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "tools/*"
 
 allowBuilds:
+  esbuild: true
   unrs-resolver: set this to true or false
 
 onlyBuiltDependencies:

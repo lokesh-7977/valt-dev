@@ -4,18 +4,23 @@
   "version": "0.1.0",
   "packageManager": "pnpm@11.2.2",
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=@valt/web --filter=@valt/api",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
+    "e2e": "turbo run e2e",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "api:install": "pnpm --filter @valt/api run install:deps",
     "api:dev": "pnpm --filter @valt/api run dev",
     "gcp:bootstrap": "bash infra/gcp/bootstrap.sh",
     "gcp:deploy": "bash infra/gcp/deploy.sh",
     "db:up": "docker compose up -d postgres",
-    "db:migrate": "pnpm --filter @valt/api run db:migrate"
+    "db:migrate": "pnpm --filter @valt/api run db:migrate",
+    "alt:helper": "pnpm --filter @valt/mock-helper start",
+    "mock": "pnpm alt:helper",
+    "alt:dev": "turbo run dev --filter=@valt/extension --filter=@valt/demo-erp",
+    "demo:erp": "pnpm --filter @valt/demo-erp dev"
   },
   "devDependencies": {
     "prettier": "^3.4.2",
@@ -23,6 +28,6 @@
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   }
 }

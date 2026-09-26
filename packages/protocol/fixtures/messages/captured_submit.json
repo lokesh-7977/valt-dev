@@ -1,0 +1,62 @@
+{
+  "type": "captured_submit",
+  "id": "fx-captured_submit-7",
+  "ts": 1790000007000,
+  "payload": {
+    "submitId": "sub-1",
+    "pageUrl": "http://localhost:5180/invoices/new",
+    "route": "/invoices/new",
+    "form": {
+      "selector": "form[data-testid=invoice-form]",
+      "fields": [
+        {
+          "name": "customer",
+          "label": "Customer",
+          "type": "text",
+          "value": "Acme",
+          "selector": "[data-testid=customer]"
+        },
+        {
+          "name": "discount",
+          "label": "Discount %",
+          "type": "number",
+          "value": "10",
+          "selector": "[data-testid=discount]"
+        },
+        {
+          "name": "card_number",
+          "label": "Card number",
+          "type": "text",
+          "value": "[redacted]",
+          "selector": "[data-testid=card_number]"
+        }
+      ]
+    },
+    "requests": [
+      {
+        "reqId": "req-1",
+        "method": "POST",
+        "url": "http://localhost:5180/api/invoices",
+        "status": 201,
+        "reqHeaders": {
+          "content-type": "application/json",
+          "authorization": "[redacted]"
+        },
+        "reqBody": {
+          "customer": "Acme",
+          "card_number": "[redacted]"
+        },
+        "resBody": "{\"id\":\"inv_1\",\"notes\":\"xxxx…[truncated: 71680 bytes]",
+        "durationMs": 42,
+        "initiator": "fetch"
+      }
+    ],
+    "uiAfter": {
+      "toasts": [
+        "Saved invoice"
+      ],
+      "fieldErrors": [],
+      "url": "http://localhost:5180/invoices/new"
+    }
+  }
+}

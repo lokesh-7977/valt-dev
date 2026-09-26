@@ -1,0 +1,11 @@
+{
+  "type": "run_stats",
+  "id": "fx-run_stats-13",
+  "ts": 1790000013000,
+  "payload": {
+    "checks": 42,
+    "agents": 7,
+    "durationMs": 4800,
+    "trigger": "manual_submit"
+  }
+}

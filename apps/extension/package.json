@@ -1,0 +1,35 @@
+{
+  "name": "@valt/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "vite build",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@valt/protocol": "workspace:*",
+    "preact": "^10.29.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@crxjs/vite-plugin": "~2.7.1",
+    "@eslint/js": "^9.39.0",
+    "@preact/preset-vite": "^2.10.6",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/chrome": "^0.3.0",
+    "@types/node": "^22.10.2",
+    "@valt/demo-erp": "workspace:*",
+    "@valt/mock-helper": "workspace:*",
+    "eslint": "^9.39.0",
+    "happy-dom": "^20.14.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.70.1",
+    "vite": "^8.3.1",
+    "vitest": "^4.1.11"
+  }
+}

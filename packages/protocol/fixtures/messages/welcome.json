@@ -1,0 +1,16 @@
+{
+  "type": "welcome",
+  "id": "fx-welcome-8",
+  "ts": 1790000008000,
+  "payload": {
+    "helperVersion": "mock-1.0.0",
+    "project": "demo-erp",
+    "roles": [
+      "admin",
+      "clerk",
+      "viewer"
+    ],
+    "mode": "live",
+    "v": 1
+  }
+}

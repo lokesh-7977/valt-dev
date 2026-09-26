@@ -1,0 +1,8 @@
+{
+  "type": "set_role",
+  "id": "fx-set_role-4",
+  "ts": 1790000004000,
+  "payload": {
+    "role": "clerk"
+  }
+}

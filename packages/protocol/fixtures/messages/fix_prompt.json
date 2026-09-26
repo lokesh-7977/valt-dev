@@ -1,0 +1,9 @@
+{
+  "type": "fix_prompt",
+  "id": "fx-fix_prompt-14",
+  "ts": 1790000014000,
+  "payload": {
+    "bugId": "bug-discount-dropped",
+    "text": "Fix: include discount in the POST /api/invoices body."
+  }
+}

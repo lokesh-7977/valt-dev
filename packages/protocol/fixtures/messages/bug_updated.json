@@ -1,0 +1,10 @@
+{
+  "type": "bug_updated",
+  "id": "fx-bug_updated-11",
+  "ts": 1790000011000,
+  "payload": {
+    "bugId": "bug-discount-dropped",
+    "status": "open",
+    "ticketUrl": "https://linear.app/alt/issue/ALT-12"
+  }
+}

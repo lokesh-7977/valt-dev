@@ -1,0 +1,262 @@
+[
+  {
+    "expect": { "testid": "discount" },
+    "sweep": true,
+    "bug": {
+      "bugId": "demo-01-discount-dropped",
+      "fingerprint": "invoices-new:discount:C1",
+      "title": "Discount shown in the form is dropped from the request",
+      "severity": "high",
+      "layer": "ui_api",
+      "checkCode": "C1",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=discount]", "fallbackText": "Discount %" },
+      "steps": ["Open /invoices/new", "Leave Discount % at 10", "Click Submit"],
+      "expected": "POST /api/invoices body contains discount: 10",
+      "actual": "The request body has no discount field",
+      "evidence": {
+        "screenshotUrl": "http://127.0.0.1:7777/assets/screenshots/invoice-new.png",
+        "request": { "customer": "Acme Corp", "quantity": "3", "unit_price": 100 },
+        "highlightKeys": ["discount"]
+      },
+      "likelyCause": {
+        "file": "apps/demo-erp/src/routes/invoice-new.tsx",
+        "line": 34,
+        "reason": "buildPayload never copies discount into the request body"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "quantity" },
+    "sweep": true,
+    "bug": {
+      "bugId": "demo-02-quantity-string",
+      "fingerprint": "invoices-new:quantity:C2",
+      "title": "Quantity is sent as a string",
+      "severity": "medium",
+      "layer": "ui_api",
+      "checkCode": "C2",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "#invoice-qty-legacy", "fallbackText": "Quantity" },
+      "steps": ["Open /invoices/new", "Enter Quantity 3", "Click Submit"],
+      "expected": "quantity is the number 3",
+      "actual": "quantity is the string \"3\"",
+      "evidence": { "request": { "quantity": "3" }, "highlightKeys": ["quantity"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/src/routes/invoice-new.tsx",
+        "line": 38,
+        "reason": "the raw input string is sent without Number()"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "unit_price" },
+    "sweep": false,
+    "bug": {
+      "bugId": "demo-03-unit-price-rounded",
+      "fingerprint": "invoices-new:unit_price:C2",
+      "title": "Unit price is rounded before it is sent",
+      "severity": "medium",
+      "layer": "ui_api",
+      "checkCode": "C2",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=unit_price]", "fallbackText": "Unit price" },
+      "steps": ["Open /invoices/new", "Enter Unit price 99.95", "Click Submit"],
+      "expected": "unit_price is 99.95",
+      "actual": "unit_price is 100",
+      "evidence": { "request": { "unit_price": 100 }, "highlightKeys": ["unit_price"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/src/routes/invoice-new.tsx",
+        "line": 39,
+        "reason": "Math.round is applied to the price"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": null },
+    "sweep": false,
+    "bug": {
+      "bugId": "demo-04-internal-field-leaked",
+      "fingerprint": "invoices-new:internal_margin:C3",
+      "title": "Response leaks an internal_margin field",
+      "severity": "low",
+      "layer": "api",
+      "checkCode": "C3",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=internal-margin]" },
+      "steps": ["Submit any invoice", "Inspect the POST /api/invoices response"],
+      "expected": "The response contains only invoice fields",
+      "actual": "The response also contains internal_margin",
+      "evidence": { "response": { "id": "inv_1", "internal_margin": 0.42 }, "highlightKeys": ["internal_margin"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/server/mock-api.ts",
+        "reason": "the internal cost model is serialised with the invoice"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "save" },
+    "sweep": true,
+    "bug": {
+      "bugId": "demo-05-save-hides-500",
+      "fingerprint": "invoices-new:save:C4",
+      "title": "Save shows \"Saved invoice\" when the server returns 500",
+      "severity": "critical",
+      "layer": "ui_api",
+      "checkCode": "C4",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=save]", "fallbackText": "Save" },
+      "steps": ["Open /invoices/new", "Enter Quantity 500", "Click Save"],
+      "expected": "An error is shown and the invoice is not reported as saved",
+      "actual": "Toast says \"Saved invoice\" while POST /api/invoices returned 500",
+      "evidence": {
+        "screenshotUrl": "http://127.0.0.1:7777/assets/screenshots/invoice-new.png",
+        "response": { "error": "Quantity limit exceeded" }
+      },
+      "likelyCause": {
+        "file": "apps/demo-erp/src/routes/invoice-new.tsx",
+        "reason": "the Save button path ignores the response status"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "notes" },
+    "sweep": false,
+    "bug": {
+      "bugId": "demo-06-notes-truncated",
+      "fingerprint": "invoices-new:notes:C5",
+      "title": "Long notes are silently cut to 200 characters",
+      "severity": "medium",
+      "layer": "api",
+      "checkCode": "C5",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=notes]", "fallbackText": "Notes" },
+      "steps": ["Enter 300 characters in Notes", "Click Submit"],
+      "expected": "All 300 characters are stored, or an error is shown",
+      "actual": "The response notes are 200 characters and the UI says Saved",
+      "evidence": { "highlightKeys": ["notes"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/server/mock-api.ts",
+        "reason": "notes are sliced to 200 characters without a validation error"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "total" },
+    "sweep": true,
+    "bug": {
+      "bugId": "demo-07-total-not-reflected",
+      "fingerprint": "invoices-new:total:C6",
+      "title": "Server total is not reflected in the form total",
+      "severity": "high",
+      "layer": "ui_api",
+      "checkCode": "C6",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=total]", "fallbackText": "Total" },
+      "steps": ["Open /invoices/new", "Click Submit", "Compare the form total with the response total"],
+      "expected": "The form shows the total the server stored (300.00)",
+      "actual": "The form keeps showing its own total (270.00)",
+      "evidence": { "response": { "total": 300 }, "highlightKeys": ["total"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/src/routes/invoice-new.tsx",
+        "reason": "the response total is never read back into state"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "due_date" },
+    "sweep": true,
+    "bug": {
+      "bugId": "demo-08-weekend-due-date",
+      "fingerprint": "invoices-new:due_date:C8",
+      "title": "Server rejects a weekend due date the form accepted",
+      "severity": "medium",
+      "layer": "rule",
+      "checkCode": "C8",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=due_date]", "fallbackText": "Due date" },
+      "steps": ["Set Due date to 2026-10-31 (a Saturday)", "Click Submit"],
+      "expected": "The form blocks weekend dates before submitting",
+      "actual": "The form submits and the server answers 422",
+      "evidence": { "response": { "error": "Due date must be a weekday" }, "highlightKeys": ["due_date"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/server/mock-api.ts",
+        "reason": "the weekday rule exists only on the server"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "submit" },
+    "sweep": false,
+    "bug": {
+      "bugId": "demo-09-stack-trace",
+      "fingerprint": "invoices-new:submit:C10",
+      "title": "Error response exposes a stack trace",
+      "severity": "high",
+      "layer": "health",
+      "checkCode": "C10",
+      "pageUrl": "http://localhost:5180/invoices/new",
+      "route": "/invoices/new",
+      "anchor": { "selector": "[data-testid=submit]", "fallbackText": "Submit" },
+      "steps": ["Enter Quantity 500", "Click Submit", "Inspect the 500 response"],
+      "expected": "A generic error message",
+      "actual": "The response includes a stack field with file paths",
+      "evidence": { "response": { "stack": "Error: Quantity limit exceeded\n    at createInvoice (mock-api.ts)" }, "highlightKeys": ["stack"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/server/mock-api.ts",
+        "reason": "err.stack is returned to the client"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  },
+  {
+    "expect": { "testid": "list-total" },
+    "sweep": true,
+    "bug": {
+      "bugId": "demo-10-list-total-gross",
+      "fingerprint": "invoices:list-total:C2",
+      "title": "Invoice list grand total ignores discounts",
+      "severity": "high",
+      "layer": "ui_api",
+      "checkCode": "C2",
+      "pageUrl": "http://localhost:5180/invoices",
+      "route": "/invoices",
+      "anchor": { "selector": "[data-testid=list-total]", "fallbackText": "Grand total" },
+      "steps": ["Create an invoice with a discount", "Open /invoices", "Compare the rows with the grand total"],
+      "expected": "Grand total equals the sum of the row totals",
+      "actual": "Grand total is the gross amount before discounts",
+      "evidence": { "response": { "total": 300 }, "highlightKeys": ["total"] },
+      "likelyCause": {
+        "file": "apps/demo-erp/server/mock-api.ts",
+        "reason": "GET /api/invoices sums quantity * unit_price instead of total"
+      },
+      "env": "localhost",
+      "status": "open"
+    }
+  }
+]

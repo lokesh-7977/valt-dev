@@ -31,3 +31,9 @@ Thumbs.db
 
 # deploy config (per developer)
 infra/gcp/config.env
+
+# ALT extension e2e / mock helper
+test-results/
+playwright-report/
+playwright/.cache/
+tools/mock-helper/.logs/

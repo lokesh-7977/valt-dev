@@ -1,0 +1,48 @@
+{
+  "type": "bug_found",
+  "id": "fx-bug_found-10",
+  "ts": 1790000010000,
+  "payload": {
+    "bugId": "bug-discount-dropped",
+    "fingerprint": "invoice-new:discount:C1",
+    "title": "Discount shown in UI is dropped from the request",
+    "severity": "high",
+    "layer": "ui_api",
+    "checkCode": "C1",
+    "pageUrl": "http://localhost:5180/invoices/new",
+    "route": "/invoices/new",
+    "anchor": {
+      "selector": "[data-testid=discount]",
+      "fallbackText": "Discount %"
+    },
+    "steps": [
+      "Open /invoices/new",
+      "Enter discount 10",
+      "Click Submit"
+    ],
+    "expected": "POST /api/invoices includes discount: 10",
+    "actual": "Request body has no discount field",
+    "evidence": {
+      "screenshotUrl": "http://127.0.0.1:7777/assets/screenshots/invoice-new.png",
+      "request": {
+        "customer": "Acme",
+        "quantity": 3
+      },
+      "response": {
+        "id": "inv_1",
+        "total": 300
+      },
+      "highlightKeys": [
+        "discount"
+      ]
+    },
+    "likelyCause": {
+      "file": "apps/demo-erp/src/routes/invoice-new.tsx",
+      "line": 42,
+      "reason": "discount omitted when building the payload"
+    },
+    "env": "localhost",
+    "status": "open",
+    "ticketUrl": "https://linear.app/alt/issue/ALT-12"
+  }
+}

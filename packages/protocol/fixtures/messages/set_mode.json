@@ -1,0 +1,8 @@
+{
+  "type": "set_mode",
+  "id": "fx-set_mode-2",
+  "ts": 1790000002000,
+  "payload": {
+    "mode": "paused"
+  }
+}

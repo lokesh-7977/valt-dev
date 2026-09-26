@@ -1,0 +1,11 @@
+{
+  "extends": "../../packages/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*", "server/**/*.ts", "fixtures/**/*.ts", "vite.config.ts", "vitest.config.ts"]
+}

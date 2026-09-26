@@ -1,0 +1,29 @@
+{
+  "type": "contract_result",
+  "id": "fx-contract_result-12",
+  "ts": 1790000012000,
+  "payload": {
+    "submitId": "sub-1",
+    "route": "/invoices/new",
+    "rows": [
+      {
+        "field": "customer",
+        "uiValue": "Acme",
+        "requestValue": "Acme",
+        "responseValue": "Acme",
+        "ok": true
+      },
+      {
+        "field": "discount",
+        "uiValue": "10",
+        "requestValue": "",
+        "responseValue": "",
+        "ok": false,
+        "code": "C1"
+      }
+    ],
+    "bugIds": [
+      "bug-discount-dropped"
+    ]
+  }
+}

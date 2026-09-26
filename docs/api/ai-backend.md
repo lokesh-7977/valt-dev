@@ -110,6 +110,59 @@ Add request and response models to `schemas.py` and mirror them in
 
 **RAG, tools, multi-step.** Use the `ai` extra (LangGraph/LangChain). Graph nodes call `AIService`.
 
+## ALT: alt_form_plan task
+
+Code: `prompts/alt_explorer.py`. The ALT Chrome extension discovers forms itself. It calls
+Gemini only to add meaning: semantic field types, realistic happy-path values, and a few
+business-context cases that its heuristics can't derive. That is one Flash call per form, and the
+extension caches the result, for example by page URL, form id, and field keys.
+
+```bash
+curl -s localhost:8000/api/v1/process -H 'content-type: application/json' -d '{
+  "task": "alt_form_plan", "variables": {"today": "2026-09-26"},
+  "text": "{\"page\":{\"url\":\"...\",\"title\":\"...\",\"headings\":[],\"nav\":[]},\"form\":{...}}"}'
+```
+
+**Input.** `variables.today` (`yyyy-mm-dd`, required; a missing value returns 422
+`missing_variables`). `text` is the form descriptor as a JSON string:
+
+```json
+{"page": {"url": "...", "title": "...", "headings": ["..."], "nav": ["Dashboard", "Invoices"]},
+ "form": {"id": "invoice-form", "submit_label": "Save invoice", "fields": [
+   {"key": "quantity", "label": "Quantity", "name": "quantity", "type": "number", "required": true,
+    "min": "1", "max": "1000", "step": "1", "maxlength": null, "pattern": null,
+    "options": null, "placeholder": null, "context": "nearby text"}]}}
+```
+
+The descriptor is untrusted page content. It reaches the model only inside `<user_input>` tags,
+and the system prompt treats it as data.
+
+**Output** (`data.output`, a `FormPlan`):
+
+| Field | Shape |
+| --- | --- |
+| `purpose`, `category` | e.g. `"Create invoice"`, `create \| edit \| search \| filter \| login \| signup \| settings \| payment \| contact \| invite \| other` |
+| `destructive` | `true` if submitting deletes data, moves money, sends messages, or is irreversible |
+| `fields[]` | `{key, semantic, happy_value, unique}`: one per input field, keys echoed |
+| `context_cases[]` | 0–5 × `{title, rationale, expect: accept\|reject, field_key \| null, overrides: [{key, value}]}` |
+
+`semantic` is a fixed enum (`email`, `phone`, `date`, `currency_amount`, `gstin`, `pan`, `ifsc`,
+`select_entity`, ..., `unknown`). All values are strings. Dates are `yyyy-mm-dd`, checkboxes are
+`"true"`/`"false"`, and select values are always one of the given options. Data is fake: `example.com`
+or `acme.test` emails, and the test card `4111111111111111`. Indian formats (GSTIN, PAN, IFSC, +91,
+PIN) are used when the page suggests INR or GST.
+
+**How the extension uses it.** Merge by `key`, not by position. Any field the model omits or marks
+`unknown` keeps the heuristic value. Build a context case as happy values + `overrides`. Treat
+`destructive: true` as "don't auto-submit without approval". `unique: true` means the extension
+should add a run suffix before reusing the value. Errors use the normal envelope. On
+`ai_rate_limited`, `ai_timeout`, or `ai_invalid_output`, fall back to heuristics only.
+
+Measured on 2026-09-26 with `gemini-3.8-flash` and an 8-field invoice form: about 1.4k input
+tokens, 0.6–0.8k output tokens, and 0.4–1k thinking tokens, at 4.8–6.2 s end to end. The same
+prompt with `thinking_level=LOW` took 3.3–3.6 s. `GenerationOptions` can't set that yet, and
+`MINIMAL` is rejected by this model.
+
 ## Demo-stability checklist
 
 - `GET /api/v1/health` shows `"ai": "configured"`. Run the live smoke test with the demo key.

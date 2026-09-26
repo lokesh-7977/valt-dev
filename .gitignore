@@ -31,3 +31,9 @@ Thumbs.db
 
 # deploy config (per developer)
 infra/gcp/config.env
+
+# eval outputs (ai-eval skill)
+apps/api/evals/**/results/
+
+# ALT e2e evidence
+apps/extension/e2e/last-run.json

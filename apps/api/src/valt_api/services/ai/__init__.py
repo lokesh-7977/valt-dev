@@ -1,5 +1,10 @@
 from valt_api.services.ai.service import AIService, Prepared
 from valt_api.services.ai.types import (
+    ActionCall,
+    ActionOutcome,
+    ComputerUseProvider,
+    ComputerUseReply,
+    ComputerUseSession,
     GenerationOptions,
     InputPart,
     JsonResult,
@@ -12,6 +17,11 @@ from valt_api.services.ai.types import (
 
 __all__ = [
     "AIService",
+    "ActionCall",
+    "ActionOutcome",
+    "ComputerUseProvider",
+    "ComputerUseReply",
+    "ComputerUseSession",
     "GenerationOptions",
     "InputPart",
     "JsonResult",

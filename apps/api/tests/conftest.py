@@ -8,12 +8,18 @@ import httpx
 import pytest
 from alembic import command
 from alembic.config import Config
-from fakes import FakeModelClient
+from fakes import FakeModelClient, FakeRunPage
 from httpx import ASGITransport
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from valt_api.main import app
+from valt_api.qa_agent.agent import Emit, run_qa
+from valt_api.qa_agent.guards import Guards
+from valt_api.qa_agent.manager import QAManager
+from valt_api.qa_agent.scenarios import Scenario
+from valt_api.schemas import QADoneEvent, QARunInfo
+from valt_api.services.ai import ComputerUseProvider
 from valt_api.services.storage import LocalFileStorage
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -50,8 +56,26 @@ async def client(tmp_path: Path) -> AsyncIterator[httpx.AsyncClient]:
     app.state.sessionmaker = None
     app.state.model_client = None
     app.state.storage = LocalFileStorage(tmp_path / "uploads")
+    app.state.computer_use = None
+    app.state.qa_manager = QAManager(runner=fake_qa_runner, debounce_ms=100)
     async for c in _client():
         yield c
+    await app.state.qa_manager.aclose()
+
+
+async def fake_qa_runner(
+    provider: ComputerUseProvider, scenario: Scenario, run: QARunInfo, emit: Emit
+) -> QADoneEvent:
+    """run_qa against a fake page: no browser needed."""
+    return await run_qa(
+        scenario=scenario,
+        provider=provider,
+        run_page=FakeRunPage(delay_s=0.05),
+        guards=Guards(["localhost:8001"], max_steps=15),
+        run=run,
+        emit=emit,
+        model="fake",
+    )
 
 
 @pytest.fixture

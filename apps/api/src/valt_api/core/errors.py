@@ -84,6 +84,11 @@ class AIUnavailableError(AppError):
         super().__init__(status.HTTP_503_SERVICE_UNAVAILABLE, "ai_unavailable", message)
 
 
+class QAUnavailableError(AppError):
+    def __init__(self, message: str = "QA browser is not installed") -> None:
+        super().__init__(status.HTTP_503_SERVICE_UNAVAILABLE, "qa_unavailable", message)
+
+
 class AIRateLimitedError(AppError):
     def __init__(self) -> None:
         super().__init__(

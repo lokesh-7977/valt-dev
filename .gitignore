@@ -15,6 +15,7 @@ venv/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+apps/api/evals/**/results/
 *.egg-info/
 
 # env

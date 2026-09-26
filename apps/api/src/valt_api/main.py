@@ -10,8 +10,12 @@ from valt_api.config import get_settings
 from valt_api.core.errors import install_error_handling
 from valt_api.core.logging import configure_logging
 from valt_api.db.session import make_engine, make_sessionmaker
+from valt_api.qa_agent import routes as qa_routes
+from valt_api.qa_agent.browser import BrowserSession
+from valt_api.qa_agent.guards import Guards
+from valt_api.qa_agent.manager import QAManager, browser_runner
 from valt_api.routers import ai, files, health, items
-from valt_api.services.ai import ModelClient
+from valt_api.services.ai import ComputerUseProvider, ModelClient
 from valt_api.services.gemini import GeminiClient
 from valt_api.services.storage import LocalFileStorage
 
@@ -43,22 +47,46 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.warning("API_DATABASE_URL not set — database endpoints will return 503")
 
     model_client: ModelClient | None = None
+    computer_use: ComputerUseProvider | None = None
     if settings.gemini_api_key:
-        model_client = GeminiClient(
+        gemini = GeminiClient(
             settings.gemini_api_key.get_secret_value(),
             model=settings.gemini_model,
             timeout_s=settings.gemini_timeout_s,
             max_retries=settings.gemini_max_retries,
         )
+        model_client = computer_use = gemini
         logger.info("Gemini ready (model=%s)", settings.gemini_model)
     else:
         logger.warning("GEMINI_API_KEY not set — AI endpoints will return 503")
     app.state.model_client = model_client
+    app.state.computer_use = computer_use
     app.state.storage = LocalFileStorage(settings.upload_dir)
+
+    # Live QA agent (ADR 0015). Chromium starts lazily on the first run.
+    browser = BrowserSession(
+        headless=settings.qa_headless,
+        width=settings.qa_screen_width,
+        height=settings.qa_screen_height,
+    )
+    guards = Guards(
+        settings.qa_allowed_hosts,
+        settings.qa_max_steps,
+        # Never let the agent type our own key into a page.
+        [settings.gemini_api_key.get_secret_value()] if settings.gemini_api_key else [],
+    )
+    qa_manager = QAManager(
+        runner=browser_runner(browser, guards, settings),
+        debounce_ms=settings.qa_debounce_ms,
+        preflight=browser.ensure_started,
+    )
+    app.state.qa_manager = qa_manager
 
     try:
         yield
     finally:
+        await qa_manager.aclose()
+        await browser.aclose()
         if model_client is not None:
             await model_client.aclose()
         if engine is not None:
@@ -94,6 +122,7 @@ def create_app() -> FastAPI:
     v1.include_router(files.router)
     v1.include_router(ai.router)
     v1.include_router(items.router)
+    v1.include_router(qa_routes.router)
     app.include_router(v1)
 
     # Unversioned liveness for infra probes / smoke tests (infra/gcp/deploy.sh).

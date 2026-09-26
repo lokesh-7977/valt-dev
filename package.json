@@ -15,7 +15,9 @@
     "gcp:bootstrap": "bash infra/gcp/bootstrap.sh",
     "gcp:deploy": "bash infra/gcp/deploy.sh",
     "db:up": "docker compose up -d postgres",
-    "db:migrate": "pnpm --filter @valt/api run db:migrate"
+    "db:migrate": "pnpm --filter @valt/api run db:migrate",
+    "sample:serve": "python -m http.server 8001 --bind 127.0.0.1 --directory sample_app",
+    "sample:watch": "python sample_app/watch.py"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

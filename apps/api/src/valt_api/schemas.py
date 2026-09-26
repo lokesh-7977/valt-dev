@@ -169,3 +169,87 @@ class TaskInfo(BaseModel):
     variables: list[str]
     required_variables: list[str]
     output_schema: dict[str, Any] | None
+
+
+# ---- Live QA agent (ADR 0015) ----
+
+QARunStatus = Literal[
+    "running",
+    "passed",
+    "bug_found",
+    "inconclusive",
+    "stopped",
+    "needs_confirmation",
+    "blocked",
+    "error",
+]
+QATrigger = Literal["manual", "save"]
+QAVerdict = Literal["bug", "pass", "inconclusive"]
+
+
+class QAScenario(BaseModel):
+    id: str
+    title: str
+    goal: str
+    start_url: str
+
+
+class QARunRequest(BaseModel):
+    scenario_id: str = Field(default="signup_empty_password", max_length=100)
+
+
+class QASaveHookRequest(BaseModel):
+    """Sent by the editor (or sample_app/watch.py) on every save."""
+
+    path: str | None = Field(default=None, max_length=500)
+    scenario_id: str | None = Field(default=None, max_length=100)
+
+
+class QASaveHookResponse(BaseModel):
+    scheduled: bool
+    debounce_ms: int
+
+
+class QAStopResponse(BaseModel):
+    stopped: bool
+    run_id: str | None
+
+
+class QARunInfo(BaseModel):
+    run_id: str
+    scenario_id: str
+    trigger: QATrigger
+    status: QARunStatus
+    started_at: datetime
+
+
+# SSE payloads for GET /qa/events (event names: step, interrupt, done, error).
+
+
+class QAStepEvent(BaseModel):
+    run_id: str
+    index: int
+    kind: Literal["run_started", "action", "blocked"]
+    action: str | None = None
+    intent: str | None = None
+    args: dict[str, Any] | None = None
+    url: str | None = None
+    screenshot_png_b64: str | None = None
+    note: str | None = None
+    run: QARunInfo | None = Field(default=None, description="Set only when kind is run_started.")
+
+
+class QAInterruptEvent(BaseModel):
+    run_id: str
+    reason: Literal["safety_confirmation"] = "safety_confirmation"
+    explanation: str
+
+
+class QADoneEvent(BaseModel):
+    run: QARunInfo
+    verdict: QAVerdict
+    summary: str
+    findings: list[str]
+    steps: int
+    duration_ms: int
+    usage: Usage | None = None

@@ -149,7 +149,7 @@ export type GenerateStreamEvent =
   | { event: "done"; data: { model: string } }
   | { event: "error"; data: ApiErrorBody["error"] };
 
-// ---- Live QA agent (ADR 0015) ----
+// ---- Live QA agent (ADR 0016) ----
 
 export type QARunStatus =
   | "running"
@@ -234,3 +234,5 @@ export type QAStreamEvent =
   | { event: "interrupt"; data: QAInterruptEvent }
   | { event: "done"; data: QADoneEvent }
   | { event: "error"; data: ApiErrorBody["error"] };
+
+export * from "./alt";

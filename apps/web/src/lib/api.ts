@@ -184,7 +184,7 @@ async function* readSse<T>(res: Response): AsyncGenerator<T> {
   }
 }
 
-// ---- Live QA agent (ADR 0015) ----
+// ---- Live QA agent (ADR 0016) ----
 
 export function listQaScenarios() {
   return apiFetch<QAScenario[]>("/qa/scenarios");

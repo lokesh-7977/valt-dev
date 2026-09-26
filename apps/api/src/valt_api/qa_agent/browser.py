@@ -1,4 +1,4 @@
-"""Playwright on its own thread with its own event loop (ADR 0015).
+"""Playwright on its own thread with its own event loop (ADR 0016).
 
 On Windows, `uvicorn --reload` runs a SelectorEventLoop, which cannot spawn Playwright's driver
 subprocess. So Chromium lives on a daemon thread that owns a ProactorEventLoop (a plain new loop

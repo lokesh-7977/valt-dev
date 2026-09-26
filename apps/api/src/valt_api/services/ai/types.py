@@ -116,7 +116,7 @@ class ModelClient(Protocol):
     async def aclose(self) -> None: ...
 
 
-# ---- Computer use (live QA agent, ADR 0015) ----
+# ---- Computer use (live QA agent, ADR 0016) ----
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,6 +1,6 @@
 # Sample app — signup form with one planted bug
 
-A tiny standalone app for demoing the live QA agent (ADR 0015). Plain HTML + JS, no build step,
+A tiny standalone app for demoing the live QA agent (ADR 0016). Plain HTML + JS, no build step,
 no network calls.
 
 **The bug:** `validate()` in `app.js` never checks the password, so submitting a valid email with an

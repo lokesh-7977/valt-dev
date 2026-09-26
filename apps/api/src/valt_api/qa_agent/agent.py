@@ -1,6 +1,6 @@
 """The Computer Use loop: screenshot -> model action -> guards -> execute -> screenshot -> repeat.
 
-A plain async loop, not a graph (ADR 0015): one model, one tool, a linear path, and "stop" means
+A plain async loop, not a graph (ADR 0016): one model, one tool, a linear path, and "stop" means
 cancel the task. Every step is emitted as it happens, so the UI shows the browser live. The first
 event is always `run_started` with a screenshot, sent before the first (slow) model call.
 

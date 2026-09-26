@@ -25,7 +25,8 @@ Format: lightweight [MADR](https://adr.github.io/madr/). Copy [`template.md`](te
 | [0012](0012-deploy-api-to-gcp-cloud-run.md) | Deploy the API to GCP Cloud Run with Cloud SQL | Accepted |
 | [0013](0013-standard-api-response-envelope.md) | Standard API response envelope | Accepted |
 | [0014](0014-gemini-direct-behind-ai-service.md) | Call Gemini directly (google-genai) behind an AIService layer | Accepted |
-| [0015](0015-live-qa-agent-playwright-computer-use.md) | Live QA agent: Playwright on its own loop, driven by Gemini Computer Use | Accepted |
+| [0015](0015-alt-chrome-extension-as-product-surface.md) | Ship ALT as a Chrome MV3 extension (TypeScript + esbuild) | Accepted |
+| [0016](0016-live-qa-agent-playwright-computer-use.md) | Live QA agent: Playwright on its own loop, driven by Gemini Computer Use | Accepted |
 
 ## How the AI decisions fit together
 

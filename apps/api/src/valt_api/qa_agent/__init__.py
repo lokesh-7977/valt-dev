@@ -1,4 +1,4 @@
-"""Live QA agent (ADR 0015): Gemini Computer Use drives a sandboxed Playwright browser.
+"""Live QA agent (ADR 0016): Gemini Computer Use drives a sandboxed Playwright browser.
 
 agent.py     the screenshot -> model action -> execute -> screenshot loop
 executor.py  model actions -> Playwright calls

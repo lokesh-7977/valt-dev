@@ -20,7 +20,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from evals.common import serve_dir, write_results
+from evals.common import serve_dir, write_report
 from valt_api.config import get_settings
 from valt_api.qa_agent.agent import run_qa
 from valt_api.qa_agent.browser import BrowserSession
@@ -136,9 +136,7 @@ async def main(only: str | None) -> int:
         await gemini.aclose()
     passed = sum(1 for r in results if r["pass"])
     print(f"\n{passed}/{len(results)} passed")
-    path = write_results(
-        HERE / "results", "qa_agent", {"model": settings.qa_model, "results": results}
-    )
+    path = write_report(HERE / "results", {"model": settings.qa_model, "results": results})
     print(f"results: {path}")
     return 0 if passed == len(results) else 1
 

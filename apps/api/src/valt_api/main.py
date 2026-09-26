@@ -63,7 +63,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.computer_use = computer_use
     app.state.storage = LocalFileStorage(settings.upload_dir)
 
-    # Live QA agent (ADR 0015). Chromium starts lazily on the first run.
+    # Live QA agent (ADR 0016). Chromium starts lazily on the first run.
     browser = BrowserSession(
         headless=settings.qa_headless,
         width=settings.qa_screen_width,

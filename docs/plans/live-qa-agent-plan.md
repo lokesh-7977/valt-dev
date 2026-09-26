@@ -44,7 +44,7 @@ browser or key.
   linear, there is no resume or memory requirement, and stop means cancel.
 - **Rejected:** a LangGraph `StateGraph`. It would checkpoint roughly 100 KB of screenshot bytes per
   step, adds nothing for a linear loop, and costs build time we don't have.
-  Recorded in ADR 0015 (T1).
+  Recorded in ADR 0016 (T1).
 - **Switch if:** a human must *resume* after `require_confirmation`. That needs `interrupt()` plus a
   checkpointer, so at that point move the loop into a graph.
 
@@ -228,10 +228,10 @@ All shapes are defined in `apps/api/src/valt_api/schemas.py` and mirrored in `pa
 
 ## Tasks
 
-### [x] T1 — ADR 0015, Playwright dependency, dev scripts, save watcher
+### [x] T1 — ADR 0016, Playwright dependency, dev scripts, save watcher
 - **Owner:** devops-engineer
 - **Files:**
-  - `docs/adr/0015-live-qa-agent-playwright-computer-use.md` (new, via the `/adr` skill)
+  - `docs/adr/0016-live-qa-agent-playwright-computer-use.md` (new, via the `/adr` skill)
   - `docs/adr/README.md`
   - `apps/api/pyproject.toml`
   - `apps/api/package.json`
@@ -240,7 +240,7 @@ All shapes are defined in `apps/api/src/valt_api/schemas.py` and mirrored in `pa
   - `package.json` (root)
   - `sample_app/watch.py` (new)
 - **Change:**
-  - ADR 0015 records three decisions:
+  - ADR 0016 records three decisions:
     - Playwright is the browser driver, in a new `qa` extra: `"playwright>=1.63,<1.64"`.
     - It runs on a dedicated thread with a Proactor loop.
     - The computer-use loop is a plain async loop. This is a scoped exception to ADR 0005, justified

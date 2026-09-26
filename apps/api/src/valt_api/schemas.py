@@ -171,7 +171,7 @@ class TaskInfo(BaseModel):
     output_schema: dict[str, Any] | None
 
 
-# ---- Live QA agent (ADR 0015) ----
+# ---- Live QA agent (ADR 0016) ----
 
 QARunStatus = Literal[
     "running",

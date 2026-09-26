@@ -1,4 +1,4 @@
-"""Live QA agent endpoints, mounted under /api/v1/qa (ADR 0015).
+"""Live QA agent endpoints, mounted under /api/v1/qa (ADR 0016).
 
 Starting a run returns at once (202); progress arrives on GET /qa/events (SSE: step, interrupt,
 done, error). The editor calls POST /qa/save-hook on every save.

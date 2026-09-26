@@ -1,4 +1,4 @@
-"""Gemini Computer Use session (ADR 0014 boundary, ADR 0015).
+"""Gemini Computer Use session (ADR 0014 boundary, ADR 0016).
 
 Keeps the conversation history, sends each action's result back as a FunctionResponse carrying
 the page URL and a fresh screenshot, and turns the model's function calls into neutral
